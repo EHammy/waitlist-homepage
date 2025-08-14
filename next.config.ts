@@ -1,7 +1,12 @@
-// next.config.js
+/** @type {import('next').NextConfig} */
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Ensure Next.js uses the app directory inside src
+  experimental: {
+    appDir: true,
+  },
+
   images: {
     remotePatterns: [
       {
@@ -14,56 +19,22 @@ const nextConfig: NextConfig = {
       }
     ],
   },
+
   async redirects() {
     return [
       // Redirect common app paths to waitlist
-      {
-        source: '/app',
-        destination: '/',
-        permanent: false,
-      },
-      {
-        source: '/dashboard',
-        destination: '/',
-        permanent: false,
-      },
-      {
-        source: '/account',
-        destination: '/',
-        permanent: false,
-      },
-      {
-        source: '/login',
-        destination: '/',
-        permanent: false,
-      },
-      {
-        source: '/signup',
-        destination: '/',
-        permanent: false,
-      },
-      {
-        source: '/quiz',
-        destination: '/',
-        permanent: false,
-      },
-      {
-        source: '/products',
-        destination: '/',
-        permanent: false,
-      },
-      {
-        source: '/cart',
-        destination: '/',
-        permanent: false,
-      },
-      {
-        source: '/checkout',
-        destination: '/',
-        permanent: false,
-      }
+      { source: '/app', destination: '/', permanent: false },
+      { source: '/dashboard', destination: '/', permanent: false },
+      { source: '/account', destination: '/', permanent: false },
+      { source: '/login', destination: '/', permanent: false },
+      { source: '/signup', destination: '/', permanent: false },
+      { source: '/quiz', destination: '/', permanent: false },
+      { source: '/products', destination: '/', permanent: false },
+      { source: '/cart', destination: '/', permanent: false },
+      { source: '/checkout', destination: '/', permanent: false }
     ]
   },
+
   async headers() {
     return [
       {
