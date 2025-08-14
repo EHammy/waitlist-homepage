@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://plannosaur.com"),
@@ -26,7 +28,7 @@ export const metadata: Metadata = {
     url: "https://plannosaur.com",
     images: [
       {
-        url: "/logo.png", // Using your existing logo in /public
+        url: "/logo.png",
         width: 1200,
         height: 630,
         alt: "Plannosaur AI-Powered Planner Logo",
@@ -38,7 +40,7 @@ export const metadata: Metadata = {
     title: "Plannosaur - AI-Powered Planner",
     description:
       "Stop abandoning planners after 3 weeks. Get early access with 30% off!",
-    images: ["/logo.png"], // Same logo for Twitter preview
+    images: ["/logo.png"],
   },
 };
 
@@ -49,7 +51,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased font-sans">{children}</body>
+      <body className="antialiased font-sans">
+        {children}
+        <Analytics />
+        <SpeedInsights />
+      </body>
     </html>
   );
 }
