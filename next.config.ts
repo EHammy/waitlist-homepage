@@ -1,12 +1,6 @@
-/** @type {import('next').NextConfig} */
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Ensure Next.js uses the app directory inside src
-  experimental: {
-    appDir: true,
-  },
-
   images: {
     remotePatterns: [
       {
@@ -40,7 +34,7 @@ const nextConfig: NextConfig = {
       {
         source: '/api/:path*',
         headers: [
-          { key: 'Access-Control-Allow-Origin', value: '*' }, // Temporary - allows all domains
+          { key: 'Access-Control-Allow-Origin', value: '*' },
           { key: 'Access-Control-Allow-Methods', value: 'GET, POST, OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
         ],
