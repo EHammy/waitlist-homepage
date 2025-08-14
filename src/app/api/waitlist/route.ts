@@ -1,167 +1,211 @@
 // src/app/api/waitlist/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { z } from 'zod'
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { z } from "zod";
 
-// Add OPTIONS method for CORS preflight
-export async function OPTIONS() {
-  return new NextResponse(null, { 
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, x-admin-key',
-    },
-  })
+/* ---------------------------- CORS / ORIGINS ---------------------------- */
+
+const PROD_ORIGINS = new Set<string>([
+  "https://plannosaur.com",
+  "https://www.plannosaur.com",
+]);
+
+function buildAllowedOrigins() {
+  const origins = new Set(PROD_ORIGINS);
+  const vercelUrl = process.env.VERCEL_URL;
+  const env = process.env.VERCEL_ENV; // "production" | "preview" | "development"
+  if (env !== "production" && vercelUrl) origins.add(`https://${vercelUrl}`);
+  origins.add("http://localhost:3000");
+  return origins;
 }
+
+const ALLOWED_ORIGINS = buildAllowedOrigins();
+
+function withCors(req: NextRequest, res: NextResponse) {
+  const origin = req.headers.get("origin") ?? "";
+  if (ALLOWED_ORIGINS.has(origin)) {
+    // Echo back the single allowed origin (required by browsers)
+    res.headers.set("Access-Control-Allow-Origin", origin);
+  }
+  res.headers.set("Vary", "Origin");
+  res.headers.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, X-Turnstile-Token, x-admin-key"
+  );
+  return res;
+}
+
+function withSecurityHeaders(res: NextResponse) {
+  res.headers.set("X-Content-Type-Options", "nosniff");
+  res.headers.set("X-Frame-Options", "SAMEORIGIN");
+  res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  return res;
+}
+
+/* ------------------------------- Schema -------------------------------- */
 
 const waitlistSchema = z.object({
-  email: z.string()
-    .email('Invalid email address')
-    .toLowerCase()
-    .trim()
-    .max(254),
-  source: z.string()
+  email: z.string().email("Invalid email address").max(254).transform((v) => v.trim().toLowerCase()),
+  source: z
+    .string()
     .optional()
-    .default('homepage')
-    .transform(val => val?.replace(/[<>]/g, '').slice(0, 50)),
-  utmSource: z.string().optional().transform(val => val?.slice(0, 100)),
-  utmMedium: z.string().optional().transform(val => val?.slice(0, 100)),
-  utmCampaign: z.string().optional().transform(val => val?.slice(0, 100))
-})
+    .default("homepage")
+    .transform((val) => val?.replace(/[<>]/g, "").slice(0, 50)),
+  utmSource: z.string().optional().transform((val) => val?.slice(0, 100)),
+  utmMedium: z.string().optional().transform((val) => val?.slice(0, 100)),
+  utmCampaign: z.string().optional().transform((val) => val?.slice(0, 100)),
+  // Honeypot: real users never fill this
+  website: z.string().max(0).optional(),
+});
 
-// Simple in-memory rate limiting (for basic protection)
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
+/* --------------------------- Basic Rate Limit --------------------------- */
+// NOTE: In-memory only (per-instance). For production reliability, replace with Upstash.
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
 function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const windowMs = 60 * 1000 // 1 minute
-  const maxRequests = 5
+  const now = Date.now();
+  const windowMs = 60 * 1000; // 1 minute
+  const maxRequests = 5;
 
-  const record = rateLimitMap.get(ip)
-  
+  const record = rateLimitMap.get(ip);
   if (!record || now > record.resetTime) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs })
-    return true
+    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
+    return true;
   }
-  
-  if (record.count >= maxRequests) {
-    return false
-  }
-  
-  record.count++
-  return true
+  if (record.count >= maxRequests) return false;
+
+  record.count++;
+  return true;
 }
 
+/* --------------------------------- OPTIONS ------------------------------ */
+
+export async function OPTIONS(req: NextRequest) {
+  const res = new NextResponse(null, { status: 204 });
+  return withCors(req, res);
+}
+
+/* ---------------------------------- POST -------------------------------- */
+
 export async function POST(request: NextRequest) {
+  // Enforce allowed origins (defense-in-depth beyond CORS headers)
+  const origin = request.headers.get("origin") ?? "";
+  if (origin && !ALLOWED_ORIGINS.has(origin)) {
+    const res = new NextResponse(null, { status: 204 }); // generic, no hints
+    return withCors(request, withSecurityHeaders(res));
+  }
+
+  // Rate limit
+  const ipAddress =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
+
+  if (!checkRateLimit(ipAddress)) {
+    const res = NextResponse.json(
+      { message: "Too many requests. Please try again in a minute." },
+      { status: 429 }
+    );
+    return withCors(request, withSecurityHeaders(res));
+  }
+
+  // Parse & validate body
+  let body: unknown;
   try {
-    // Rate limiting
-    const ipAddress = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-                     request.headers.get('x-real-ip') || 
-                     'unknown'
-    
-    if (!checkRateLimit(ipAddress)) {
-      return NextResponse.json(
-        { message: 'Too many requests. Please try again in a minute.' },
-        { status: 429 }
-      )
-    }
+    body = await request.json();
+  } catch {
+    const res = NextResponse.json({ message: "Invalid JSON" }, { status: 400 });
+    return withCors(request, withSecurityHeaders(res));
+  }
 
-    const body = await request.json()
-    const validatedData = waitlistSchema.parse(body)
+  const parsed = waitlistSchema.safeParse(body);
+  if (!parsed.success) {
+    const res = NextResponse.json({ message: parsed.error.issues[0].message }, { status: 400 });
+    return withCors(request, withSecurityHeaders(res));
+  }
 
-    // Get request metadata
-    const userAgent = request.headers.get('user-agent')?.slice(0, 500) || null
-    const referrer = request.headers.get('referer')?.slice(0, 500) || null
+  // Honeypot check (bots)
+  if (parsed.data.website) {
+    const res = NextResponse.json({ ok: true }, { status: 204 });
+    return withCors(request, withSecurityHeaders(res));
+  }
 
-    // Check if email already exists
-    const existing = await prisma.waitlist_signups.findUnique({
-      where: { email: validatedData.email }
-    })
+  // (Optional) Turnstile token verification
+  // const token = request.headers.get("x-turnstile-token") ?? "";
+  // await verifyTurnstile(token);
 
-    if (existing) {
-      return NextResponse.json(
-        { 
-          message: 'You\'re already on the waitlist! We\'ll notify you when we launch.',
-          alreadyExists: true 
-        },
-        { status: 200 }
-      )
-    }
+  const { email, source, utmSource, utmMedium, utmCampaign } = parsed.data;
+  const userAgent = request.headers.get("user-agent")?.slice(0, 500) || null;
+  const referrer = request.headers.get("referer")?.slice(0, 500) || null;
 
-    // Add to waitlist
-    const signup = await prisma.waitlist_signups.create({
-      data: {
-        email: validatedData.email,
-        source: validatedData.source,
+  try {
+    // Upsert without leaking enumeration status in response
+    await prisma.waitlist_signups.upsert({
+      where: { email },
+      create: {
+        email,
+        source,
         ip_address: ipAddress,
         user_agent: userAgent,
         referrer,
-        utm_source: validatedData.utmSource,
-        utm_medium: validatedData.utmMedium,
-        utm_campaign: validatedData.utmCampaign,
-      }
-    })
-
-    const response = NextResponse.json(
-      { 
-        message: 'Successfully joined the waitlist! We\'ll notify you when Plannosaur launches.',
-        id: signup.id
+        utm_source: utmSource,
+        utm_medium: utmMedium,
+        utm_campaign: utmCampaign,
       },
-      { status: 201 }
-    )
+      update: {
+        // Optionally refresh metadata on repeat submits
+        source,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        referrer,
+        utm_source: utmSource,
+        utm_medium: utmMedium,
+        utm_campaign: utmCampaign,
+      },
+    });
 
-    // Add security headers
-    response.headers.set('X-Content-Type-Options', 'nosniff')
-    response.headers.set('X-Frame-Options', 'DENY')
-    response.headers.set('X-XSS-Protection', '1; mode=block')
-
-    return response
-
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { message: error.issues[0].message },
-        { status: 400 }
-      )
-    }
-
-    console.error('Waitlist signup error:', error)
-    return NextResponse.json(
-      { message: 'Something went wrong. Please try again.' },
+    const res = NextResponse.json({ ok: true }, { status: 200 });
+    return withCors(request, withSecurityHeaders(res));
+  } catch (err) {
+    console.error("Waitlist signup error:", err);
+    const res = NextResponse.json(
+      { message: "Something went wrong. Please try again." },
       { status: 500 }
-    )
+    );
+    return withCors(request, withSecurityHeaders(res));
   }
 }
 
-export async function GET(request: NextRequest) {
-  try {
-    // Fix the admin key check - make it optional for now
-    const adminKey = request.headers.get('x-admin-key')
-    const expectedAdminKey = process.env.ADMIN_API_KEY
-    
-    // Only check admin key if it exists in environment
-    if (expectedAdminKey && adminKey !== expectedAdminKey) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
-    }
-    
-    // If no admin key is set, return a simple status message
-    if (!expectedAdminKey) {
-      return NextResponse.json({ 
-        message: 'Waitlist API is running',
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV
-      })
-    }
+/* ----------------------------------- GET -------------------------------- */
+// Now admin-only. Requires x-admin-key to match process.env.ADMIN_API_KEY.
+// Returns 405 if no/invalid key (prevents public “healthy” info leakage).
 
-    const { searchParams } = new URL(request.url)
-    const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50')))
+export async function GET(request: NextRequest) {
+  const origin = request.headers.get("origin") ?? "";
+  if (origin && !ALLOWED_ORIGINS.has(origin)) {
+    const res = new NextResponse(null, { status: 204 });
+    return withCors(request, withSecurityHeaders(res));
+  }
+
+  const expectedAdminKey = process.env.ADMIN_API_KEY;
+  const adminKey = request.headers.get("x-admin-key") ?? "";
+
+  if (!expectedAdminKey || adminKey !== expectedAdminKey) {
+    // Do not expose health/env; simply disallow
+    const res = NextResponse.json({ message: "Method Not Allowed" }, { status: 405 });
+    return withCors(request, withSecurityHeaders(res));
+  }
+
+  // Admin listing with pagination
+  try {
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "50")));
 
     const [signups, total] = await Promise.all([
       prisma.waitlist_signups.findMany({
-        orderBy: { created_at: 'desc' },
+        orderBy: { created_at: "desc" },
         skip: (page - 1) * limit,
         take: limit,
         select: {
@@ -172,23 +216,21 @@ export async function GET(request: NextRequest) {
           utm_source: true,
           utm_medium: true,
           utm_campaign: true,
-        }
+        },
       }),
-      prisma.waitlist_signups.count()
-    ])
+      prisma.waitlist_signups.count(),
+    ]);
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       signups,
       total,
       page,
-      pages: Math.ceil(total / limit)
-    })
-
+      pages: Math.ceil(total / limit),
+    });
+    return withCors(request, withSecurityHeaders(res));
   } catch (error) {
-    console.error('Error in GET /api/waitlist:', error)
-    return NextResponse.json(
-      { message: 'Internal server error', error: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    )
+    console.error("Error in GET /api/waitlist:", error);
+    const res = NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return withCors(request, withSecurityHeaders(res));
   }
 }
