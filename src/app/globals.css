@@ -15,19 +15,11 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-poppins), system-ui, -apple-system, sans-serif;
   margin: 0;
   padding: 0;
 }
 
-/* Ensure proper font loading */
-.font-poppins {
-  font-family: var(--font-poppins), system-ui, -apple-system, sans-serif;
-}
 
-.font-urbanist {
-  font-family: var(--font-urbanist), system-ui, -apple-system, sans-serif;
-}
 
 /* Optional: Add some base styles for your waitlist */
 * {

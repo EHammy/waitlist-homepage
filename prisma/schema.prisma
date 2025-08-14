@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("STACK_SECRET_SERVER_KEY_DATABASE_URL")
 }
 
 model ai_prompts {

@@ -69,7 +69,7 @@ const nextConfig: NextConfig = {
       {
         source: '/api/:path*',
         headers: [
-          { key: 'Access-Control-Allow-Origin', value: 'https://plannosaur.com' },
+          { key: 'Access-Control-Allow-Origin', value: '*' }, // Temporary - allows all domains
           { key: 'Access-Control-Allow-Methods', value: 'GET, POST, OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
         ],
