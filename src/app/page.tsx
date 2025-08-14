@@ -72,15 +72,15 @@ export default function WaitlistPage() {
           className="text-center max-w-md mx-auto px-8 relative z-10"
         >
           <CheckCircle className="w-16 h-16 text-[#d3a749] mx-auto mb-6" />
-          <h1 className="text-3xl font-bold text-white mb-4 font-urbanist">You&apos;re In!</h1>
-          <p className="text-gray-300 mb-8 leading-relaxed font-poppins">
+          <h1 className="text-3xl font-bold text-white mb-4 font-sans">You&apos;re In!</h1>
+          <p className="text-gray-300 mb-8 leading-relaxed font-sans">
             We&apos;ll notify you as soon as Plannosaur launches.
             <br />
             <span className="text-[#d3a749] font-medium">November 13th, 2025</span>
           </p>
           <button
             onClick={() => setStatus('idle')}
-            className="bg-gradient-to-r from-[#d3a749] to-[#f4e5a1] text-[#0c3427] px-8 py-3 rounded-full font-semibold hover:from-[#f4e5a1] hover:to-[#d3a749] transition-all duration-300 transform hover:scale-105 font-poppins"
+            className="bg-gradient-to-r from-[#d3a749] to-[#f4e5a1] text-[#0c3427] px-8 py-3 rounded-full font-semibold hover:from-[#f4e5a1] hover:to-[#d3a749] transition-all duration-300 transform hover:scale-105 font-sans"
           >
             Add Another Email
           </button>
@@ -138,10 +138,10 @@ export default function WaitlistPage() {
               />
             </motion.div>
             <div className="text-center">
-              <div className="text-[#d3a749] font-bold text-3xl tracking-wide mb-2 font-urbanist">
+              <div className="text-[#d3a749] font-bold text-3xl tracking-wide mb-2 font-sans">
                 Plannosaur
               </div>
-              <div className="text-[#d3a749]/60 text-base font-medium tracking-widest uppercase font-poppins">
+              <div className="text-[#d3a749]/60 text-base font-medium tracking-widest uppercase font-sans">
                 AI-Powered Planner
               </div>
             </div>
@@ -154,7 +154,7 @@ export default function WaitlistPage() {
           initial="hidden"
           animate="visible"
           transition={{ staggerChildren: 0.15 }}
-          className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight font-urbanist"
+          className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight font-sans"
         >
           <motion.div 
             variants={headingChild}
@@ -183,7 +183,7 @@ export default function WaitlistPage() {
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
-          className="text-xl text-gray-300 mb-12 leading-relaxed max-w-2xl mx-auto font-poppins"
+          className="text-xl text-gray-300 mb-12 leading-relaxed max-w-2xl mx-auto font-sans"
         >
           Get the world&apos;s first{" "}
           <span className="text-[#d3a749] font-semibold">AI-powered planner</span>{" "}
@@ -204,7 +204,7 @@ export default function WaitlistPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-full mb-6 text-sm font-poppins"
+              className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-full mb-6 text-sm font-sans"
             >
               {message}
             </motion.div>
@@ -219,14 +219,14 @@ export default function WaitlistPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-12 py-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#d3a749] focus:border-transparent transition-all duration-300 font-poppins"
+                className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-12 py-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#d3a749] focus:border-transparent transition-all duration-300 font-sans"
               />
             </div>
             
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="bg-gradient-to-r from-[#d3a749] to-[#f4e5a1] text-[#0c3427] px-8 py-4 rounded-full font-semibold hover:from-[#f4e5a1] hover:to-[#d3a749] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 font-poppins"
+              className="bg-gradient-to-r from-[#d3a749] to-[#f4e5a1] text-[#0c3427] px-8 py-4 rounded-full font-semibold hover:from-[#f4e5a1] hover:to-[#d3a749] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 font-sans"
             >
               {status === 'loading' ? (
                 <>
