@@ -3,6 +3,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 
+// Add OPTIONS method for CORS preflight
+export async function OPTIONS() {
+  return new NextResponse(null, { 
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, x-admin-key',
+    },
+  })
+}
+
 const waitlistSchema = z.object({
   email: z.string()
     .email('Invalid email address')
@@ -124,14 +136,23 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    // Enhanced admin security
+    // Fix the admin key check - make it optional for now
     const adminKey = request.headers.get('x-admin-key')
-    const isProduction = process.env.NODE_ENV === 'production'
+    const expectedAdminKey = process.env.ADMIN_API_KEY
     
-    if (isProduction && adminKey !== process.env.ADMIN_API_KEY) {
+    // Only check admin key if it exists in environment
+    if (expectedAdminKey && adminKey !== expectedAdminKey) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
-    } else if (!isProduction && process.env.NODE_ENV !== 'development') {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    }
+    
+    // If no admin key is set, return a simple status message
+    if (!expectedAdminKey) {
+      return NextResponse.json({ 
+        message: 'Waitlist API is running',
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV
+      })
     }
 
     const { searchParams } = new URL(request.url)
@@ -164,9 +185,9 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching waitlist:', error)
+    console.error('Error in GET /api/waitlist:', error)
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: 'Internal server error', error: error.message },
       { status: 500 }
     )
   }
