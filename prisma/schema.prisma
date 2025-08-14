@@ -1,0 +1,418 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ai_prompts {
+  id             Int       @id @default(autoincrement())
+  framework_name String
+  prompt_type    String
+  prompt_text    String
+  version        Int?      @default(1)
+  is_active      Boolean?  @default(true)
+  created_at     DateTime? @default(now()) @db.Timestamp(6)
+  updated_at     DateTime? @default(now()) @db.Timestamp(6)
+
+  @@index([is_active], map: "idx_ai_prompts_active")
+  @@index([framework_name], map: "idx_ai_prompts_framework")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model applied_discounts {
+  id              Int       @id @default(autoincrement())
+  user_id         Int?
+  session_id      String?
+  discount_id     Int
+  order_id        String?
+  discount_amount Decimal   @db.Decimal(10, 2)
+  applied_at      DateTime? @default(now()) @db.Timestamp(6)
+  discounts       discounts @relation(fields: [discount_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  orders          orders?   @relation(fields: [order_id], references: [id], onUpdate: NoAction)
+  users           users?    @relation(fields: [user_id], references: [id], onUpdate: NoAction)
+
+  @@index([session_id], map: "idx_applied_discounts_session_id")
+  @@index([user_id], map: "idx_applied_discounts_user_id")
+}
+
+model block_categories {
+  id          Int     @id @default(autoincrement())
+  name        String
+  slug        String  @unique
+  description String?
+  icon        String?
+  sort_order  Int?    @default(0)
+}
+
+model cart_items {
+  id                 Int               @id @default(autoincrement())
+  user_id            Int?
+  session_id         String?
+  product_id         Int?
+  quantity           Int?              @default(1)
+  price              Decimal?          @db.Decimal(10, 2)
+  created_at         DateTime?         @default(now()) @db.Timestamp(6)
+  variant_id         Int?
+  customization_data Json?
+  max_quantity       Int?              @default(10)
+  added_at           DateTime?         @default(now()) @db.Timestamp(6)
+  updated_at         DateTime?         @default(now()) @db.Timestamp(6)
+  products           products?         @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_cart_items_product_id")
+  users              users?            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_cart_items_user_id")
+  product_variants   product_variants? @relation(fields: [variant_id], references: [id], onUpdate: NoAction, map: "fk_cart_items_variant_id")
+
+  @@unique([user_id, product_id, variant_id, session_id], map: "unique_cart_item")
+  @@index([session_id], map: "idx_cart_items_session_id")
+  @@index([user_id], map: "idx_cart_items_user_id")
+}
+
+model contact_submissions {
+  id          String   @id
+  name        String
+  email       String
+  subject     String
+  message     String
+  orderNumber String?
+  category    String   @default("other")
+  status      String   @default("new")
+  priority    String   @default("normal")
+  userAgent   String?
+  referrer    String?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model discounts {
+  id                Int                 @id @default(autoincrement())
+  code              String              @unique
+  name              String
+  type              String
+  value             Decimal             @db.Decimal(10, 2)
+  minimum_amount    Decimal?            @default(0) @db.Decimal(10, 2)
+  maximum_discount  Decimal?            @db.Decimal(10, 2)
+  usage_limit       Int?
+  usage_count       Int?                @default(0)
+  is_active         Boolean?            @default(true)
+  starts_at         DateTime?           @db.Timestamp(6)
+  expires_at        DateTime?           @db.Timestamp(6)
+  created_at        DateTime?           @default(now()) @db.Timestamp(6)
+  applied_discounts applied_discounts[]
+
+  @@index([is_active, starts_at, expires_at], map: "idx_discounts_active")
+  @@index([code], map: "idx_discounts_code")
+}
+
+model inventory_alerts {
+  id            Int       @id @default(autoincrement())
+  product_id    Int
+  alert_type    String
+  current_stock Int
+  created_at    DateTime? @default(now()) @db.Timestamp(6)
+  resolved_at   DateTime? @db.Timestamp(6)
+  products      products  @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([product_id, alert_type])
+  @@index([created_at], map: "idx_inventory_alerts_created_at")
+  @@index([product_id], map: "idx_inventory_alerts_product_id")
+}
+
+model order_status_history {
+  id         Int       @id @default(autoincrement())
+  order_id   String
+  status     String
+  notes      String?
+  changed_at DateTime? @default(now()) @db.Timestamp(6)
+  orders     orders    @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([changed_at], map: "idx_order_status_history_changed_at")
+  @@index([order_id], map: "idx_order_status_history_order_id")
+}
+
+model orders {
+  id                       String                 @id
+  user_id                  Int?
+  total_amount             Decimal                @db.Decimal(10, 2)
+  status                   String?                @default("pending")
+  stripe_payment_intent_id String?
+  shipping_address         Json?
+  billing_address          Json?
+  order_items              Json?
+  created_at               DateTime?              @default(now()) @db.Timestamp(6)
+  updated_at               DateTime?              @default(now()) @db.Timestamp(6)
+  tracking_number          String?
+  estimated_delivery       DateTime?              @db.Date
+  notes                    String?
+  customer_email           String?
+  customer_phone           String?
+  applied_discounts        applied_discounts[]
+  order_status_history     order_status_history[]
+  users                    users?                 @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_orders_user_id")
+
+  @@index([status], map: "idx_orders_status")
+  @@index([user_id], map: "idx_orders_user_id")
+}
+
+model planner_blocks {
+  id                    Int       @id @default(autoincrement())
+  name                  String
+  category              String
+  framework_tags        String[]
+  template_data         Json
+  active                Boolean?  @default(true)
+  created_at            DateTime? @default(now()) @db.Timestamp(6)
+  ai_prompt             String?
+  slug                  String?   @unique
+  variation             String?
+  description           String?
+  component_type        String?
+  component_props       Json?
+  user_types            String[]  @default(["everyday-people"])
+  psychology_frameworks String[]  @default([])
+  tags                  String[]  @default([])
+  difficulty_level      Int?      @default(1)
+  popularity_score      Int?      @default(0)
+  thumbnail_url         String?
+  sort_order            Int?      @default(0)
+  updated_at            DateTime? @default(now()) @db.Timestamp(6)
+
+  @@index([active], map: "idx_planner_blocks_active")
+  @@index([category], map: "idx_planner_blocks_category")
+  @@index([psychology_frameworks], map: "idx_planner_blocks_psychology_frameworks", type: Gin)
+  @@index([tags], map: "idx_planner_blocks_tags", type: Gin)
+}
+
+model planner_configs {
+  id                       String    @id
+  session_id               String
+  base_config              Json
+  customizations           Json?
+  selected_blocks          Json
+  final_config             Json?
+  created_at               DateTime? @default(now()) @db.Timestamp(6)
+  updated_at               DateTime? @default(now()) @db.Timestamp(6)
+  user_id                  Int?
+  stripe_payment_intent_id String?
+  status                   String?   @default("draft")
+  users                    users?    @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_planner_configs_user_id")
+
+  @@index([status], map: "idx_planner_configs_status")
+  @@index([user_id], map: "idx_planner_configs_user_id")
+}
+
+model planner_sizes {
+  id               Int      @id @default(autoincrement())
+  name             String   @unique
+  display_name     String
+  width_mm         Decimal  @db.Decimal(6, 2)
+  height_mm        Decimal  @db.Decimal(6, 2)
+  width_inches     Decimal  @db.Decimal(5, 2)
+  height_inches    Decimal  @db.Decimal(5, 2)
+  print_margins_mm Json?
+  bleed_mm         Decimal? @default(3.0) @db.Decimal(4, 2)
+  is_active        Boolean? @default(true)
+  sort_order       Int?     @default(0)
+}
+
+model product_variants {
+  id              Int               @id @default(autoincrement())
+  product_id      Int
+  name            String
+  sku             String?           @unique
+  price_modifier  Decimal?          @default(0.00) @db.Decimal(10, 2)
+  inventory_count Int?              @default(0)
+  variant_options Json?
+  is_active       Boolean?          @default(true)
+  created_at      DateTime?         @default(now()) @db.Timestamp(6)
+  updated_at      DateTime?         @default(now()) @db.Timestamp(6)
+  cart_items      cart_items[]
+  products        products          @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  saved_for_later saved_for_later[]
+
+  @@index([is_active], map: "idx_product_variants_active")
+  @@index([product_id], map: "idx_product_variants_product_id")
+}
+
+model products {
+  id               Int                @id @default(autoincrement())
+  name             String
+  description      String?
+  price            Decimal            @db.Decimal(10, 2)
+  category         String
+  product_type     String?            @default("physical")
+  is_active        Boolean?           @default(true)
+  inventory_count  Int?               @default(0)
+  images           Json?
+  metadata         Json?
+  stripe_price_id  String?
+  created_at       DateTime?          @default(now()) @db.Timestamp(6)
+  updated_at       DateTime?          @default(now()) @db.Timestamp(6)
+  cart_items       cart_items[]
+  inventory_alerts inventory_alerts[]
+  product_variants product_variants[]
+  saved_cart_items saved_cart_items[]
+  saved_for_later  saved_for_later[]
+
+  @@index([is_active], map: "idx_products_active")
+  @@index([category], map: "idx_products_category")
+}
+
+model psychology_frameworks {
+  id          Int      @id @default(autoincrement())
+  name        String
+  slug        String   @unique
+  description String?
+  is_active   Boolean? @default(true)
+  sort_order  Int?     @default(0)
+
+  @@index([is_active], map: "idx_psychology_frameworks_active")
+}
+
+model quiz_responses {
+  id             Int       @id @default(autoincrement())
+  session_id     String?
+  question_id    String?
+  question_text  String?
+  user_answer    String?
+  answer_score   Int?
+  created_at     DateTime? @default(now()) @db.Timestamp(6)
+  framework_type String?   @default("Self-Determination Theory")
+}
+
+model quiz_sessions {
+  id                      String    @id
+  user_id                 Int?
+  answers                 Json?
+  framework_scores        Json?     @default("{}")
+  created_at              DateTime? @default(now()) @db.Timestamp(6)
+  status                  String?   @default("in_progress")
+  completed_at            DateTime? @db.Timestamp(6)
+  user_profile            Json?
+  conversation_state      String?
+  current_question_number Int?      @default(1)
+  frameworks_assessed     Json?     @default("[]")
+  total_questions         Int?      @default(15)
+  completion_percentage   Decimal?  @default(0.00) @db.Decimal(5, 2)
+  users                   users?    @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_quiz_sessions_user_id")
+
+  @@index([status], map: "idx_quiz_sessions_status")
+  @@index([user_id], map: "idx_quiz_sessions_user_id")
+}
+
+model saved_cart_items {
+  id            Int       @id @default(autoincrement())
+  user_id       Int?
+  product_id    Int
+  quantity      Int       @default(1)
+  variant       String?
+  customization Json?
+  saved_at      DateTime? @default(now()) @db.Timestamp(6)
+  products      products  @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id], map: "idx_saved_cart_items_user_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model saved_for_later {
+  id                 Int               @id @default(autoincrement())
+  user_id            Int?
+  session_id         String?
+  product_id         Int
+  variant_id         Int?
+  customization_data Json?
+  saved_at           DateTime?         @default(now()) @db.Timestamp(6)
+  products           products          @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users              users?            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  product_variants   product_variants? @relation(fields: [variant_id], references: [id], onUpdate: NoAction)
+
+  @@unique([user_id, product_id, variant_id, session_id], map: "unique_saved_item")
+  @@index([session_id], map: "idx_saved_for_later_session_id")
+  @@index([user_id], map: "idx_saved_for_later_user_id")
+}
+
+model subscription_plans {
+  id                     Int       @id @default(autoincrement())
+  name                   String
+  description            String?
+  price                  Decimal   @db.Decimal(10, 2)
+  billing_interval       String
+  billing_interval_count Int?      @default(1)
+  stripe_price_id        String?
+  features               Json?
+  is_active              Boolean?  @default(true)
+  created_at             DateTime? @default(now()) @db.Timestamp(6)
+  updated_at             DateTime? @default(now()) @db.Timestamp(6)
+
+  @@index([is_active], map: "idx_subscription_plans_active")
+  @@index([billing_interval], map: "idx_subscription_plans_billing_interval")
+}
+
+model subscriptions {
+  id                 Int                  @id @default(autoincrement())
+  name               String
+  description        String?
+  price              Decimal              @db.Decimal(10, 2)
+  billing_interval   String?              @default("monthly")
+  features           Json?
+  is_active          Boolean?             @default(true)
+  stripe_price_id    String?
+  created_at         DateTime?            @default(now()) @db.Timestamp(6)
+  updated_at         DateTime?            @default(now()) @db.Timestamp(6)
+  user_subscriptions user_subscriptions[]
+
+  @@index([is_active], map: "idx_subscriptions_active")
+}
+
+model user_subscriptions {
+  id                     Int            @id @default(autoincrement())
+  user_id                Int?
+  subscription_id        Int?
+  stripe_subscription_id String?
+  status                 String?        @default("active")
+  current_period_start   DateTime?      @db.Timestamp(6)
+  current_period_end     DateTime?      @db.Timestamp(6)
+  created_at             DateTime?      @default(now()) @db.Timestamp(6)
+  updated_at             DateTime?      @default(now()) @db.Timestamp(6)
+  subscriptions          subscriptions? @relation(fields: [subscription_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user_subscriptions_subscription_id")
+  users                  users?         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user_subscriptions_user_id")
+
+  @@index([user_id], map: "idx_user_subscriptions_user_id")
+}
+
+model users {
+  id                 Int                  @id @default(autoincrement())
+  email              String               @unique
+  created_at         DateTime?            @default(now()) @db.Timestamp(6)
+  stripe_customer_id String?
+  last_login         DateTime?            @db.Timestamp(6)
+  applied_discounts  applied_discounts[]
+  cart_items         cart_items[]
+  orders             orders[]
+  planner_configs    planner_configs[]
+  quiz_sessions      quiz_sessions[]
+  saved_for_later    saved_for_later[]
+  user_subscriptions user_subscriptions[]
+}
+
+model waitlist_signups {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique @db.VarChar(255)
+  source       String?   @default("homepage") @db.VarChar(50)
+  ip_address   String?   @db.VarChar(45)
+  user_agent   String?
+  referrer     String?
+  utm_source   String?   @db.VarChar(100)
+  utm_medium   String?   @db.VarChar(100)
+  utm_campaign String?   @db.VarChar(100)
+  status       String?   @default("active") @db.VarChar(20)
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+  updated_at   DateTime? @default(now()) @db.Timestamp(6)
+
+  @@index([created_at], map: "idx_waitlist_created_at")
+  @@index([email], map: "idx_waitlist_email")
+  @@index([source], map: "idx_waitlist_source")
+}
