@@ -18,47 +18,47 @@ const nextConfig: NextConfig = {
     return [
       // Redirect common app paths to waitlist
       {
-        source: '/app',
+        source: '/app/:path*',
         destination: '/',
         permanent: false,
       },
       {
-        source: '/dashboard',
+        source: '/dashboard/:path*',
         destination: '/',
         permanent: false,
       },
       {
-        source: '/account',
+        source: '/account/:path*',
         destination: '/',
         permanent: false,
       },
       {
-        source: '/login',
+        source: '/login/:path*',
         destination: '/',
         permanent: false,
       },
       {
-        source: '/signup',
+        source: '/signup/:path*',
         destination: '/',
         permanent: false,
       },
       {
-        source: '/quiz',
+        source: '/quiz/:path*',
         destination: '/',
         permanent: false,
       },
       {
-        source: '/products',
+        source: '/products/:path*',
         destination: '/',
         permanent: false,
       },
       {
-        source: '/cart',
+        source: '/cart/:path*',
         destination: '/',
         permanent: false,
       },
       {
-        source: '/checkout',
+        source: '/checkout/:path*',
         destination: '/',
         permanent: false,
       }
