@@ -20,13 +20,9 @@ const headingChild = {
 
 export default function WaitlistPage() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<
-    "idle" | "loading" | "success" | "error"
-  >("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
-  const [particles, setParticles] = useState<{ left: string; top: string }[]>(
-    []
-  );
+  const [particles, setParticles] = useState<{ left: string; top: string }[]>([]);
 
   // Generate stable particle positions
   useEffect(() => {
@@ -63,25 +59,44 @@ export default function WaitlistPage() {
     }
   };
 
-  // Structured data (JSON-LD)
+  // ========= Structured data (JSON-LD) =========
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: "Plannosaur – AI-Powered Planner",
+    name: "Plannosaur – AI-Powered Physical Planner",
     image: ["https://plannosaur.com/logo.png"],
     description:
-      "The world's first AI-powered planner that adapts to your personality. Stop abandoning planners after 3 weeks.",
-    brand: {
-      "@type": "Brand",
-      name: "Plannosaur"
+      "A psychology-backed physical planner you design online with AI. Tailored to your personality—especially helpful if you have ADHD, struggle with discipline or motivation, or identify as Type B.",
+    brand: { "@type": "Brand", name: "Plannosaur" },
+    category: "OfficeProduct",
+    material: "Paper",
+    audience: {
+      "@type": "PeopleAudience",
+      audienceType: "Adults",
+      // Using 'additionalProperty' to describe fit-for profiles
+      additionalProperty: [
+        {
+          "@type": "PropertyValue",
+          name: "Designed for",
+          value: "ADHD, Type B personalities, low-motivation / discipline struggles"
+        }
+      ]
     },
+    // Pre-order offer for launch
     offers: {
       "@type": "Offer",
       priceCurrency: "USD",
       price: "TBD",
       availability: "https://schema.org/PreOrder",
       url: "https://plannosaur.com"
-    }
+    },
+    additionalProperty: [
+      {
+        "@type": "PropertyValue",
+        name: "Approach",
+        value: "Psychology-backed; AI-personalized layout and routines"
+      }
+    ]
   };
 
   const eventJsonLd = {
@@ -89,65 +104,46 @@ export default function WaitlistPage() {
     "@type": "Event",
     name: "Plannosaur Launch",
     startDate: "2025-11-13T00:00:00-05:00",
-    eventAttendanceMode:
-      "https://schema.org/OnlineEventAttendanceMode",
+    eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
     eventStatus: "https://schema.org/EventScheduled",
-    location: {
-      "@type": "VirtualLocation",
-      url: "https://plannosaur.com"
-    },
+    location: { "@type": "VirtualLocation", url: "https://plannosaur.com" },
     image: ["https://plannosaur.com/logo.png"],
     description:
-      "Join the waitlist for the Plannosaur launch and get 30% off. The first AI-powered planner that adapts to your personality.",
-    organizer: {
-      "@type": "Organization",
-      name: "Plannosaur",
-      url: "https://plannosaur.com"
-    }
+      "Launch of Plannosaur, the psychology-backed, AI-powered physical planner you design online. Built for ADHD, Type B personalities, and anyone who struggles with motivation or discipline. Join the waitlist for 30% off.",
+    organizer: { "@type": "Organization", name: "Plannosaur", url: "https://plannosaur.com" }
   };
 
   return (
     <>
+      {/* ======= SEO Meta ======= */}
       <Head>
-        <title>
-          Plannosaur – AI-Powered Planner Waitlist | Get 30% Off Launch Pricing
-        </title>
+        <title>Plannosaur – Psychology-Backed AI Physical Planner Built Online | 30% Off</title>
         <meta
           name="description"
-          content="Join the waitlist for Plannosaur, the world's first AI-powered planner that adapts to your personality. Get 30% off launch pricing and early access!"
+          content="Join the waitlist for Plannosaur, a psychology-backed, AI-powered physical planner that you design online. Built for ADHD, Type B personalities, and anyone who struggles with discipline or motivation. Get 30% off launch pricing."
         />
         <meta
           name="keywords"
-          content="AI planner, customizable planner, productivity tool, goal setting, waitlist, Plannosaur"
+          content="AI physical planner, ADHD planner, Type B planner, psychology-backed planner, online planner builder, motivation, discipline, productivity tool, goal setting, Plannosaur"
         />
-        <meta property="og:title" content="Plannosaur – AI-Powered Planner" />
+        <meta property="og:title" content="Plannosaur – AI Physical Planner (Psychology-Backed)" />
         <meta
           property="og:description"
-          content="Stop abandoning planners after 3 weeks. Join the waitlist and get 30% off!"
+          content="Design your psychology-backed physical planner online with AI. Great for ADHD, Type B, and anyone who struggles with motivation or discipline. Join the waitlist for 30% off."
         />
         <meta property="og:image" content="/logo.png" />
         <meta property="og:url" content="https://plannosaur.com" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Plannosaur – AI-Powered Planner" />
+        <meta name="twitter:title" content="Plannosaur – AI Physical Planner (Psychology-Backed)" />
         <meta
           name="twitter:description"
-          content="Stop abandoning planners after 3 weeks. Join the waitlist and get 30% off!"
+          content="A physical planner you design online with AI. Psychology-backed for ADHD, Type B, and low-motivation struggles. 30% off for early access."
         />
         <meta name="twitter:image" content="/logo.png" />
 
-        {/* JSON-LD Structured Data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(productJsonLd)
-          }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(eventJsonLd)
-          }}
-        />
+        {/* JSON-LD */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }} />
       </Head>
 
       {status === "success" ? (
@@ -160,15 +156,11 @@ export default function WaitlistPage() {
             className="text-center max-w-md mx-auto px-8 relative z-10"
           >
             <CheckCircle className="w-16 h-16 text-[#d3a749] mx-auto mb-6" />
-            <h1 className="text-3xl font-bold text-white mb-4 font-urbanist">
-              You&apos;re In!
-            </h1>
+            <h1 className="text-3xl font-bold text-white mb-4 font-urbanist">You&apos;re In!</h1>
             <p className="text-gray-300 mb-8 leading-relaxed font-poppins">
               We&apos;ll notify you as soon as Plannosaur launches.
               <br />
-              <span className="text-[#d3a749] font-medium">
-                November 13th, 2025
-              </span>
+              <span className="text-[#d3a749] font-medium">November 13th, 2025</span>
             </p>
             <button
               onClick={() => setStatus("idle")}
@@ -184,11 +176,7 @@ export default function WaitlistPage() {
           <motion.div
             className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-t from-[#d3a749]/20 to-transparent rounded-full blur-3xl"
             animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           />
           {particles.map((pos, i) => (
             <motion.div
@@ -196,11 +184,7 @@ export default function WaitlistPage() {
               className="absolute w-1 h-1 bg-[#d3a749]/30 rounded-full"
               style={{ left: pos.left, top: pos.top }}
               animate={{ y: [0, -30, 0], opacity: [0, 1, 0] }}
-              transition={{
-                duration: 3 + Math.random() * 2,
-                repeat: Infinity,
-                delay: Math.random() * 2
-              }}
+              transition={{ duration: 3 + Math.random() * 2, repeat: Infinity, delay: Math.random() * 2 }}
             />
           ))}
 
@@ -212,11 +196,7 @@ export default function WaitlistPage() {
                 <motion.div
                   className="w-20 h-20 flex items-center justify-center"
                   animate={{ rotate: [0, 2, -2, 0], scale: [1, 1.02, 1] }}
-                  transition={{
-                    duration: 8,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
                 >
                   <Image
                     src="/logo.png"
@@ -232,7 +212,7 @@ export default function WaitlistPage() {
                     Plannosaur
                   </h1>
                   <p className="text-[#d3a749]/60 text-base font-medium tracking-widest uppercase font-poppins">
-                    AI-Powered Planner
+                    AI-Powered Physical Planner
                   </p>
                 </div>
               </div>
@@ -246,29 +226,18 @@ export default function WaitlistPage() {
               transition={{ staggerChildren: 0.15 }}
               className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight font-urbanist"
             >
-              <motion.span
-                variants={headingChild}
-                transition={{ ease: "easeOut", duration: 0.6 }}
-              >
+              <motion.span variants={headingChild} transition={{ ease: "easeOut", duration: 0.6 }}>
                 Stop Abandoning
               </motion.span>
-              <motion.span
-                variants={headingChild}
-                transition={{ ease: "easeOut", duration: 0.6 }}
-                className="block text-[#d3a749]"
-              >
+              <motion.span variants={headingChild} transition={{ ease: "easeOut", duration: 0.6 }} className="block text-[#d3a749]">
                 Planners After
               </motion.span>
-              <motion.span
-                variants={headingChild}
-                transition={{ ease: "easeOut", duration: 0.6 }}
-                className="block text-[#f4e5a1] italic font-light"
-              >
+              <motion.span variants={headingChild} transition={{ ease: "easeOut", duration: 0.6 }} className="block text-[#f4e5a1] italic font-light">
                 3 Weeks
               </motion.span>
             </motion.h2>
 
-            {/* Subtitle */}
+            {/* Subtitle (updated with psychology + ADHD + Type B) */}
             <motion.p
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -276,14 +245,17 @@ export default function WaitlistPage() {
               className="text-xl text-gray-300 mb-12 leading-relaxed max-w-2xl mx-auto font-poppins"
             >
               Get the world&apos;s first{" "}
-              <span className="text-[#d3a749] font-semibold">
-                AI-powered planner
-              </span>{" "}
-              that adapts to <span className="italic">your personality</span>.
+              <span className="text-[#d3a749] font-semibold">psychology-backed, AI-powered physical planner</span>{" "}
+              that you design online and that adapts to <span className="italic">your personality</span>.
+              <span className="block mt-3">
+                Built for{" "}
+                <span className="text-[#f4e5a1] font-medium">ADHD</span>,{" "}
+                <span className="text-[#f4e5a1] font-medium">Type B personalities</span>, and anyone who struggles
+                with <span className="text-[#f4e5a1] font-medium">discipline</span> or{" "}
+                <span className="text-[#f4e5a1] font-medium">motivation</span>.
+              </span>
               <span className="block mt-4 text-[#f4e5a1] font-medium text-lg">
-                First 100 signups get{" "}
-                <span className="underline">30% off</span> launch pricing and
-                early access!
+                First 100 signups get <span className="underline">30% off</span> launch pricing and early access!
               </span>
             </motion.p>
 
@@ -333,28 +305,13 @@ export default function WaitlistPage() {
             {/* Footer */}
             <footer className="mt-16 text-center">
               <div className="flex justify-center space-x-6">
-                <a
-                  href="https://instagram.com/plannosaur.official"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Instagram"
-                >
+                <a href="https://instagram.com/plannosaur.official" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                   <FaInstagram className="w-6 h-6 text-[#d3a749] hover:text-white transition-colors duration-300" />
                 </a>
-                <a
-                  href="https://pinterest.com/PlannosaurOfficial"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Pinterest"
-                >
+                <a href="https://pinterest.com/PlannosaurOfficial" target="_blank" rel="noopener noreferrer" aria-label="Pinterest">
                   <FaPinterestP className="w-6 h-6 text-[#d3a749] hover:text-white transition-colors duration-300" />
                 </a>
-                <a
-                  href="https://tiktok.com/@plannosaur.official"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="TikTok"
-                >
+                <a href="https://tiktok.com/@plannosaur.official" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
                   <FaTiktok className="w-6 h-6 text-[#d3a749] hover:text-white transition-colors duration-300" />
                 </a>
               </div>
