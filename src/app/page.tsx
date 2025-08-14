@@ -261,24 +261,35 @@ export default function WaitlistPage() {
   {/* Audience chips */}
   <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
     <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-[#f4e5a1] shadow-[0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur">
-      <span className="i">🧠</span> ADHD-friendly
+      <span className="i"></span> ADHD-friendly
     </span>
     <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-[#f4e5a1] shadow-[0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur">
-      <span className="i">🌿</span> Type-B supportive
+      <span className="i"></span> Type-B supportive
     </span>
     <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-[#f4e5a1] shadow-[0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur">
-      <span className="i">⚡</span> Beat motivation & discipline dips
+      <span className="i"></span> Beat motivation & discipline dips
     </span>
   </div>
 
-  {/* Offer bar */}
-  <div className="mt-7 inline-flex items-center gap-2 rounded-full border border-[#d3a749]/30 bg-[#d3a749]/10 px-4 py-2 text-base text-[#f4e5a1]">
-    <span className="inline-block h-2 w-2 rounded-full bg-[#d3a749] shadow-[0_0_10px_2px_rgba(211,167,73,0.6)]" />
+{/* Offer bar */}
+<div className="mt-7 inline-flex items-center gap-2 rounded-full border border-[#d3a749]/40 bg-[#d3a749]/10 px-5 py-2 text-base text-[#f4e5a1]">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-4 w-4 text-[#d3a749]"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+  <span>
     First 100 signups get{" "}
-    <span className="underline underline-offset-2 decoration-[#f4e5a1]">30% off</span>{" "}
+    <span className="underline underline-offset-2 decoration-[#f4e5a1] font-semibold">30% off</span>{" "}
     launch pricing & early access
-  </div>
-</motion.div>
+  </span>
+</div>
+
 
 
             {/* Waitlist Form */}
