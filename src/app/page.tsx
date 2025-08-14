@@ -52,7 +52,8 @@ export default function WaitlistPage() {
         setStatus('error')
         setMessage(data.message || 'Something went wrong')
       }
-    } catch (error) {
+    } catch {
+      // FIXED: Removed unused 'error' parameter
       setStatus('error')
       setMessage('Please try again')
     }
@@ -71,11 +72,11 @@ export default function WaitlistPage() {
           className="text-center max-w-md mx-auto px-8 relative z-10"
         >
           <CheckCircle className="w-16 h-16 text-[#d3a749] mx-auto mb-6" />
-          <h1 className="text-3xl font-bold text-white mb-4 font-urbanist">You're In!</h1>
+          <h1 className="text-3xl font-bold text-white mb-4 font-urbanist">You&apos;re In!</h1>
           <p className="text-gray-300 mb-8 leading-relaxed font-poppins">
-            We'll notify you as soon as Plannosaur launches.
+            We&apos;ll notify you as soon as Plannosaur launches.
             <br />
-            <span className="text-[#d3a749] font-medium">Novemeber 13th, 2025</span>
+            <span className="text-[#d3a749] font-medium">November 13th, 2025</span>
           </p>
           <button
             onClick={() => setStatus('idle')}
@@ -184,7 +185,7 @@ export default function WaitlistPage() {
           transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
           className="text-xl text-gray-300 mb-12 leading-relaxed max-w-2xl mx-auto font-poppins"
         >
-          Get the world's first{" "}
+          Get the world&apos;s first{" "}
           <span className="text-[#d3a749] font-semibold">AI-powered planner</span>{" "}
           that adapts to <span className="italic">your personality</span>.
           <span className="block mt-4 text-[#f4e5a1] font-medium text-lg">
