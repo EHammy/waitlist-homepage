@@ -2,7 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Mail, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
+import {
+  Mail,
+  ArrowRight,
+  CheckCircle,
+  Loader2,
+  Brain,
+  Leaf,
+  Zap,
+  BadgePercent,
+} from "lucide-react";
 import Image from "next/image";
 import Head from "next/head";
 import { FaInstagram, FaPinterestP, FaTiktok } from "react-icons/fa";
@@ -10,12 +19,12 @@ import { FaInstagram, FaPinterestP, FaTiktok } from "react-icons/fa";
 // Animation Variants
 const headingParent = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1 }
+  visible: { opacity: 1 },
 };
 
 const headingChild = {
   hidden: { y: 40, opacity: 0 },
-  visible: { y: 0, opacity: 1 }
+  visible: { y: 0, opacity: 1 },
 };
 
 export default function WaitlistPage() {
@@ -28,7 +37,7 @@ export default function WaitlistPage() {
   useEffect(() => {
     const newParticles = Array.from({ length: 20 }).map(() => ({
       left: `${Math.random() * 100}%`,
-      top: `${Math.random() * 100}%`
+      top: `${Math.random() * 100}%`,
     }));
     setParticles(newParticles);
   }, []);
@@ -41,7 +50,7 @@ export default function WaitlistPage() {
       const response = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email }),
       });
 
       const data = await response.json();
@@ -73,30 +82,28 @@ export default function WaitlistPage() {
     audience: {
       "@type": "PeopleAudience",
       audienceType: "Adults",
-      // Using 'additionalProperty' to describe fit-for profiles
       additionalProperty: [
         {
           "@type": "PropertyValue",
           name: "Designed for",
-          value: "ADHD, Type B personalities, low-motivation / discipline struggles"
-        }
-      ]
+          value: "ADHD, Type B personalities, low-motivation / discipline struggles",
+        },
+      ],
     },
-    // Pre-order offer for launch
     offers: {
       "@type": "Offer",
       priceCurrency: "USD",
       price: "TBD",
       availability: "https://schema.org/PreOrder",
-      url: "https://plannosaur.com"
+      url: "https://plannosaur.com",
     },
     additionalProperty: [
       {
         "@type": "PropertyValue",
         name: "Approach",
-        value: "Psychology-backed; AI-personalized layout and routines"
-      }
-    ]
+        value: "Psychology-backed; AI-personalized layout and routines",
+      },
+    ],
   };
 
   const eventJsonLd = {
@@ -110,7 +117,7 @@ export default function WaitlistPage() {
     image: ["https://plannosaur.com/logo.png"],
     description:
       "Launch of Plannosaur, the psychology-backed, AI-powered physical planner you design online. Built for ADHD, Type B personalities, and anyone who struggles with motivation or discipline. Join the waitlist for 30% off.",
-    organizer: { "@type": "Organization", name: "Plannosaur", url: "https://plannosaur.com" }
+    organizer: { "@type": "Organization", name: "Plannosaur", url: "https://plannosaur.com" },
   };
 
   return (
@@ -237,60 +244,48 @@ export default function WaitlistPage() {
               </motion.span>
             </motion.h2>
 
+            {/* Lead + chips + offer */}
             <motion.div
-  initial={{ y: 30, opacity: 0 }}
-  animate={{ y: 0, opacity: 1 }}
-  transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
-  className="mx-auto mb-12 max-w-3xl text-center font-poppins"
->
-  {/* Lead copy */}
-  <p className="text-[1.25rem] md:text-[1.35rem] leading-relaxed text-gray-200">
-    Get the world’s first{" "}
-    <span className="font-semibold text-[#d3a749]">
-      psychology-backed, AI-powered <span className="whitespace-nowrap">physical planner</span>
-    </span>{" "}
-    that you design online — and that adapts to{" "}
-    <span className="italic">your personality</span>.
-  </p>
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
+              className="mx-auto mb-12 max-w-3xl text-center font-poppins"
+            >
+              {/* Lead copy */}
+              <p className="text-[1.25rem] md:text-[1.35rem] leading-relaxed text-gray-200">
+                Get the world’s first{" "}
+                <span className="font-semibold text-[#d3a749]">
+                  psychology-backed, AI-powered <span className="whitespace-nowrap">physical planner</span>
+                </span>{" "}
+                that you design online — and that adapts to <span className="italic">your personality</span>.
+              </p>
 
-  {/* Sub line */}
-  <p className="mt-3 text-gray-300">
-    Purpose-built to help you actually stick with it.
-  </p>
+              {/* Sub line */}
+              <p className="mt-3 text-gray-300">Purpose-built to help you actually stick with it.</p>
 
-  {/* Audience chips */}
-  <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
-    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-[#f4e5a1] shadow-[0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur">
-      <span className="i"></span> ADHD-friendly
-    </span>
-    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-[#f4e5a1] shadow-[0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur">
-      <span className="i"></span> Type-B supportive
-    </span>
-    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-[#f4e5a1] shadow-[0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur">
-      <span className="i"></span> Beat motivation & discipline dips
-    </span>
-  </div>
+              {/* Audience chips (Lucide icons) */}
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-[#f4e5a1] shadow-[0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur">
+                  <Brain className="h-4 w-4 text-[#d3a749]" aria-hidden="true" /> ADHD-friendly
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-[#f4e5a1] shadow-[0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur">
+                  <Leaf className="h-4 w-4 text-[#d3a749]" aria-hidden="true" /> Type-B supportive
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-[#f4e5a1] shadow-[0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur">
+                  <Zap className="h-4 w-4 text-[#d3a749]" aria-hidden="true" /> Beat motivation & discipline dips
+                </span>
+              </div>
 
-{/* Offer bar */}
-<div className="mt-7 inline-flex items-center gap-2 rounded-full border border-[#d3a749]/40 bg-[#d3a749]/10 px-5 py-2 text-base text-[#f4e5a1]">
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-4 w-4 text-[#d3a749]"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth="2"
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-  <span>
-    First 100 signups get{" "}
-    <span className="underline underline-offset-2 decoration-[#f4e5a1] font-semibold">30% off</span>{" "}
-    launch pricing & early access
-  </span>
-</div>
-
-
+              {/* Offer bar (clean, single icon) */}
+              <div className="mt-7 inline-flex items-center gap-2 rounded-full border border-[#d3a749]/40 bg-[#d3a749]/10 px-5 py-2 text-base text-[#f4e5a1]">
+                <BadgePercent className="h-4 w-4 text-[#d3a749]" aria-hidden="true" />
+                <span>
+                  First 100 signups get{" "}
+                  <span className="underline underline-offset-2 decoration-[#f4e5a1] font-semibold">30% off</span>{" "}
+                  launch pricing & early access
+                </span>
+              </div>
+            </motion.div>
 
             {/* Waitlist Form */}
             <section className="max-w-md mx-auto">
