@@ -237,27 +237,49 @@ export default function WaitlistPage() {
               </motion.span>
             </motion.h2>
 
-            {/* Subtitle (updated with psychology + ADHD + Type B) */}
-            <motion.p
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
-              className="text-xl text-gray-300 mb-12 leading-relaxed max-w-2xl mx-auto font-poppins"
-            >
-              Get the world&apos;s first{" "}
-              <span className="text-[#d3a749] font-semibold">psychology-backed, AI-powered physical planner</span>{" "}
-              that you design online and that adapts to <span className="italic">your personality</span>.
-              <span className="block mt-3">
-                Built for{" "}
-                <span className="text-[#f4e5a1] font-medium">ADHD</span>,{" "}
-                <span className="text-[#f4e5a1] font-medium">Type B personalities</span>, and anyone who struggles
-                with <span className="text-[#f4e5a1] font-medium">discipline</span> or{" "}
-                <span className="text-[#f4e5a1] font-medium">motivation</span>.
-              </span>
-              <span className="block mt-4 text-[#f4e5a1] font-medium text-lg">
-                First 100 signups get <span className="underline">30% off</span> launch pricing and early access!
-              </span>
-            </motion.p>
+            <motion.div
+  initial={{ y: 30, opacity: 0 }}
+  animate={{ y: 0, opacity: 1 }}
+  transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
+  className="mx-auto mb-12 max-w-3xl text-center font-poppins"
+>
+  {/* Lead copy */}
+  <p className="text-[1.25rem] md:text-[1.35rem] leading-relaxed text-gray-200">
+    Get the world’s first{" "}
+    <span className="font-semibold text-[#d3a749]">
+      psychology-backed, AI-powered <span className="whitespace-nowrap">physical planner</span>
+    </span>{" "}
+    that you design online — and that adapts to{" "}
+    <span className="italic">your personality</span>.
+  </p>
+
+  {/* Sub line */}
+  <p className="mt-3 text-gray-300">
+    Purpose-built to help you actually stick with it.
+  </p>
+
+  {/* Audience chips */}
+  <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-[#f4e5a1] shadow-[0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur">
+      <span className="i">🧠</span> ADHD-friendly
+    </span>
+    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-[#f4e5a1] shadow-[0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur">
+      <span className="i">🌿</span> Type-B supportive
+    </span>
+    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-[#f4e5a1] shadow-[0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur">
+      <span className="i">⚡</span> Beat motivation & discipline dips
+    </span>
+  </div>
+
+  {/* Offer bar */}
+  <div className="mt-7 inline-flex items-center gap-2 rounded-full border border-[#d3a749]/30 bg-[#d3a749]/10 px-4 py-2 text-base text-[#f4e5a1]">
+    <span className="inline-block h-2 w-2 rounded-full bg-[#d3a749] shadow-[0_0_10px_2px_rgba(211,167,73,0.6)]" />
+    First 100 signups get{" "}
+    <span className="underline underline-offset-2 decoration-[#f4e5a1]">30% off</span>{" "}
+    launch pricing & early access
+  </div>
+</motion.div>
+
 
             {/* Waitlist Form */}
             <section className="max-w-md mx-auto">
